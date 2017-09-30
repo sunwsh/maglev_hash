@@ -17,7 +17,7 @@
 GTEST_DIR = ..
 
 # Where to find user code.
-USER_DIR = ../vgw
+USER_DIR = ./
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
