@@ -1,7 +1,7 @@
 /*
  * maglevhash.h
  *
- *  Created on: 2016-9-13
+ *  Created on: 2017-9-13
  */
 
 #ifndef MAGLEV_HASH_H_
@@ -45,7 +45,7 @@ void  maglev_init(struct MAGLEV_LOOKUP_HASH *psrv );
 /*
  *  maglev_add_serv 初始化一个 meglev 一致性hash缓存 ，
  *     vip      =
- *     rs_size 	= real server number
+ *     rs_size 	= 节点 number
  *     hash_size = 质数  > rs_size * 100;
  *  return
  *     0 	 success
@@ -55,7 +55,7 @@ void  maglev_init(struct MAGLEV_LOOKUP_HASH *psrv );
 int  maglev_add_serv(struct MAGLEV_LOOKUP_HASH *psrv, int rs_size ,int hash_size );
 
 /*
- *  maglev_add_rs 增加一个 rs服务器的配置， 其中的服务器名称必须是不能重复的
+ *  maglev_add_rs 增加一个 节点配置，其中的服务器名称必须是不能重复的
  *  return
  *  	0	== success
  *  	-1	== rs_order 越界
@@ -67,20 +67,15 @@ int  maglev_add_rs(struct MAGLEV_LOOKUP_HASH *psrv,int rs_order,char *p_rs_srv_n
  * */
 void maglev_create_ht(struct MAGLEV_LOOKUP_HASH *psrv);
 
-/*
- *  maglev_dump 打印生成的 hash 表信息
- * */
-void maglev_dump(struct MAGLEV_LOOKUP_HASH *psrv);
-
 
 /*
- *  maglev_swap_entry  移动数据 到 线上 业务
+ *  maglev_swap_entry
  * */
 void maglev_swap_entry(struct MAGLEV_LOOKUP_HASH *psrv);
 
 
 /*
- *  maglev_lookup_rs 查询一个 key 对应的real server
+ *  maglev_lookup_rs 查询一个 key 对应的节点
  * */
 void *  maglev_lookup_rs(struct MAGLEV_LOOKUP_HASH *psrv,char *key ,int key_size );
 

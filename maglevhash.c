@@ -1,7 +1,7 @@
 /*
  * maglevhash.h
  *
- *  Created on: 2016-9-13
+ *  Created on: 2017-9-13
  */
 
 #include "maglevhash.h"
@@ -251,50 +251,6 @@ void maglev_create_ht(struct MAGLEV_LOOKUP_HASH *psrv)
 	}
 
 }
-
-void maglev_dump(struct MAGLEV_LOOKUP_HASH *psrv)
-{
-
-	if( 0 == psrv->is_modify_lock)
-	{
-	    printf("%s maglev_dump null\n", __FUNCTION__);
-		return;
-	}
-
-	struct MAGLEV_SERVICE_PARAMS *pServ		= psrv->p_temp;
-
-		int *permutation	= pServ->m_permutation ;
-
-		int rs_size 		= pServ->m_rs_size ;
-		int hash_size 		= pServ->m_hash_size ;
-
-		int j;
-		// void **cur_rs_info	= pServ->m_rs_info ;
-		// char	 **cur_rs_name	= pServ->m_rs_name ;
-
-		for(j=0;j < rs_size; j++)
-		{
-		    // printf("maglev dump vip:%s rsid:%d  rsinfo:%llu,[", ip_to_str(psrv->vaddr), j, (long long unsigned int) *(cur_rs_info + j) );
-			int m;
-			for(m=0;m < hash_size;m++ )
-			{
-			    printf("%d,", *(permutation + j * hash_size + m ) );
-			}
-			printf("] \n");
-		}
-
-		/*
-		uint64_t **entry	= pServ->m_entry ;
-		for(j=0; j < hash_size; j++ )
-		{
-			printf("maglev dump hash key:%d  rs:%llu \n ",j, *( entry + j ) );
-		}
-		*/
-
-}
-
-
-
 
 void maglev_swap_entry(struct MAGLEV_LOOKUP_HASH *psrv)
 {
