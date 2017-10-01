@@ -9,7 +9,11 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <malloc.h>
+#include <mm_malloc.h>
+
+// maglev entry size (太小不好，不能保证均衡性， 太大每次计算量大， google 论文上建议设置成  真实节点*100 附近的素数)
+#define  MAGLEV_HASH_SIZE_MIN   211
+#define  MAGLEV_HASH_SIZE_MAX	40009
 
 struct MAGLEV_SERVICE_PARAMS {
 	int			m_hash_size;
@@ -18,8 +22,8 @@ struct MAGLEV_SERVICE_PARAMS {
 	int			*m_permutation;
 	int			*m_next;
 
-	uint64_t	**m_rs_info;
-	uint64_t	**m_entry;
+	void		**m_rs_info;
+	void		**m_entry;
 
 	char		**m_rs_name;
 };
@@ -30,7 +34,6 @@ struct MAGLEV_LOOKUP_HASH {
 
 	volatile int		is_modify_lock;		// 是否在修改
 	struct MAGLEV_SERVICE_PARAMS *p_temp;
-	uint32_t 			vaddr;
 };
 
 /*
@@ -57,7 +60,7 @@ int  maglev_add_serv(struct MAGLEV_LOOKUP_HASH *psrv, int rs_size ,int hash_size
  *  	0	== success
  *  	-1	== rs_order 越界
  * */
-int  maglev_add_rs(struct MAGLEV_LOOKUP_HASH *psrv,int rs_order,char *p_rs_srv_name ,uint64_t  *rs_info );
+int  maglev_add_rs(struct MAGLEV_LOOKUP_HASH *psrv,int rs_order,char *p_rs_srv_name ,void  *rs_info );
 
 /*
  *  maglev_create_ht 创建hash 映射表
@@ -79,7 +82,7 @@ void maglev_swap_entry(struct MAGLEV_LOOKUP_HASH *psrv);
 /*
  *  maglev_lookup_rs 查询一个 key 对应的real server
  * */
-uint64_t *  maglev_lookup_rs(struct MAGLEV_LOOKUP_HASH *psrv,char *key ,int key_size );
+void *  maglev_lookup_rs(struct MAGLEV_LOOKUP_HASH *psrv,char *key ,int key_size );
 
 
 // 用maglev hash时，需要两个不同的hash key 生成算法 ，所以就选择了比较流行的 两个生成算法

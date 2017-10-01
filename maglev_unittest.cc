@@ -16,7 +16,7 @@ TEST(FactorialTest, Negative) {
   struct MAGLEV_LOOKUP_HASH  m_maglev_hash;
   maglev_init( &m_maglev_hash );
   
-  EXPECT_EQ(0, maglev_add_serv( &m_maglev_hash ,2,103) );
+  EXPECT_EQ(0, maglev_add_serv( &m_maglev_hash ,2,313) );
   int i;
   for(i=0;i < 2;i++)
   {

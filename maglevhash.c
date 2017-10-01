@@ -6,6 +6,7 @@
 
 #include "maglevhash.h"
 #include <string.h>
+#include <math.h>
 
 
 void  maglev_init(struct MAGLEV_LOOKUP_HASH *psrv )
@@ -37,15 +38,36 @@ void  maglev_init(struct MAGLEV_LOOKUP_HASH *psrv )
 
 }
 
-static struct MAGLEV_SERVICE_PARAMS*  create_maglev_service_unit(struct MAGLEV_SERVICE_PARAMS* pServ,int  rs_size , int hash_size )
+static int8_t __is_maglev_prime(int n)
 {
+    if (n < MAGLEV_HASH_SIZE_MIN)
+        return 0;
+    if (n > MAGLEV_HASH_SIZE_MAX)
+        return 0;
+    if (n % 2 == 0)
+        return 0;
+
+    int i, j;
+    j = (int) sqrt(n + 1);
+    for (i = 3; i <= j; i = i + 2)
+        if (n % i == 0)
+            return 0;
+    return 1;
+}
+
+static struct MAGLEV_SERVICE_PARAMS*  __create_maglev_service_unit(struct MAGLEV_SERVICE_PARAMS* pServ,int  rs_size , int hash_size )
+{
+	if (0 == __is_maglev_prime(hash_size)) {
+		return NULL;
+	}
+
 	pServ->m_hash_size			= hash_size;
 	pServ->m_rs_size			= rs_size;
 	pServ->m_permutation		= (int *) malloc(rs_size * hash_size * sizeof(int));
-	pServ->m_rs_info			= (uint64_t **) malloc(rs_size * sizeof(uint64_t *) );
+	pServ->m_rs_info			= (void **) malloc(rs_size * sizeof(void *) );
 
 	pServ->m_next				= (int *) malloc(rs_size * sizeof(int) );
-	pServ->m_entry				= (uint64_t **) malloc(hash_size * sizeof(uint64_t *) );
+	pServ->m_entry				= (void **) malloc(hash_size * sizeof(void *) );
 
 	if(NULL == pServ->m_entry )
 	{
@@ -106,9 +128,9 @@ int  maglev_add_serv(struct MAGLEV_LOOKUP_HASH *psrv, int rs_size ,int hash_size
 	int	 	i_index	= (psrv->is_use_index + 1 ) % 2;
 	maglev_loopup_item_clean(psrv,i_index);
 
-	psrv->p_temp	=  create_maglev_service_unit(&psrv->item[i_index],rs_size,hash_size);
+	psrv->p_temp	=  __create_maglev_service_unit(&psrv->item[i_index],rs_size,hash_size);
 
-	printf("%s,vip:%s ,rs_size:%u ,hash_size:%u  \n ", __FUNCTION__ , ip_to_str(psrv->vaddr), rs_size, hash_size);
+	//printf("%s,vip:%u ,rs_size:%u ,hash_size:%u  \n ", __FUNCTION__ , psrv->vaddr, rs_size, hash_size);
 
 	if(NULL == psrv->p_temp )
 	{
@@ -120,7 +142,7 @@ int  maglev_add_serv(struct MAGLEV_LOOKUP_HASH *psrv, int rs_size ,int hash_size
 /*
  *  maglev_add_rs 增加一个 rs服务器的配置， 其中的服务器名称必须是不能重复的
  * */
-int  maglev_add_rs(struct MAGLEV_LOOKUP_HASH *psrv,int rs_order,char *p_rs_srv_name ,uint64_t  *rs_info )
+int  maglev_add_rs(struct MAGLEV_LOOKUP_HASH *psrv,int rs_order,char *p_rs_srv_name ,void  *rs_info )
 {
 	if( 0 == psrv->is_modify_lock)
 	{
@@ -140,7 +162,7 @@ int  maglev_add_rs(struct MAGLEV_LOOKUP_HASH *psrv,int rs_order,char *p_rs_srv_n
 	unsigned int skip	= ngx_murmur_hash2(p_rs_srv_name,strlen(p_rs_srv_name) );
 	skip				= skip % ( M -1 ) + 1;
 
-	uint64_t **cur_rs_info	= psrv->p_temp->m_rs_info;
+	void **cur_rs_info	= psrv->p_temp->m_rs_info;
 	*( cur_rs_info + rs_order) = rs_info;
 
 	{  // 保存  rs服务器 关键名称
@@ -179,8 +201,8 @@ void maglev_create_ht(struct MAGLEV_LOOKUP_HASH *psrv)
 	int *permutation	= pServ->m_permutation ;
 
 	int	*next			= pServ->m_next ;
-	uint64_t **entry		= pServ->m_entry ;
-	uint64_t **cur_rs_info	= pServ->m_rs_info ;
+	void **entry		= pServ->m_entry ;
+	void **cur_rs_info	= pServ->m_rs_info ;
 
 	int j;
 	for(j=0;j<N;j++)
@@ -247,12 +269,12 @@ void maglev_dump(struct MAGLEV_LOOKUP_HASH *psrv)
 		int hash_size 		= pServ->m_hash_size ;
 
 		int j;
-		uint64_t **cur_rs_info	= pServ->m_rs_info ;
+		// void **cur_rs_info	= pServ->m_rs_info ;
 		// char	 **cur_rs_name	= pServ->m_rs_name ;
 
 		for(j=0;j < rs_size; j++)
 		{
-		    printf("maglev dump vip:%s rsid:%d  rsinfo:%llu,[", ip_to_str(psrv->vaddr), j, (long long unsigned int) *(cur_rs_info + j) );
+		    // printf("maglev dump vip:%s rsid:%d  rsinfo:%llu,[", ip_to_str(psrv->vaddr), j, (long long unsigned int) *(cur_rs_info + j) );
 			int m;
 			for(m=0;m < hash_size;m++ )
 			{
@@ -293,7 +315,7 @@ void maglev_swap_entry(struct MAGLEV_LOOKUP_HASH *psrv)
 /*
  *  maglev_lookup_rs 查询一个 key 对应的real server
  * */
-uint64_t *  maglev_lookup_rs(struct MAGLEV_LOOKUP_HASH *psrv,char *key ,int key_size )
+void *  maglev_lookup_rs(struct MAGLEV_LOOKUP_HASH *psrv,char *key ,int key_size )
 {
 	int	 	i_index	= psrv->is_use_index;
 	if(i_index < 0  )
@@ -305,11 +327,11 @@ uint64_t *  maglev_lookup_rs(struct MAGLEV_LOOKUP_HASH *psrv,char *key ,int key_
 		return NULL;
 	}
 
-	uint64_t * prs_info;
+	void * prs_info;
 
 	unsigned int  new_key	= ngx_murmur_hash2(key,key_size);
 	int M				= psrv->item[ i_index ].m_hash_size ;		// 用了论文中的 变量名
-	uint64_t **entry	= psrv->item[ i_index ].m_entry ;
+	void **entry	= psrv->item[ i_index ].m_entry ;
 
 	unsigned int  hashkey	= new_key % M;
 	prs_info	= *(entry + hashkey );
@@ -367,5 +389,6 @@ unsigned int  ngx_murmur_hash2(char *data, int len)
 
     return h;
 }
+
 
 
