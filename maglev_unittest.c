@@ -23,7 +23,7 @@ TEST(FactorialTest, Negative) {
 
   maglev_init( &m_maglev_hash );
   
-  EXPECT_EQ(0, maglev_add_serv( &m_maglev_hash , REAL_SERVER_NUMB, 313) );
+  EXPECT_EQ(0, maglev_update_service( &m_maglev_hash , REAL_SERVER_NUMB, 313) );
   int i;
   for(i=0;i < REAL_SERVER_NUMB; i++)
   {
@@ -32,7 +32,7 @@ TEST(FactorialTest, Negative) {
     char descname[100];
     snprintf(descname, sizeof(descname), "rs:%d", i);
 
-    maglev_add_rs( &m_maglev_hash ,i,descname,rsdesc );
+    maglev_add_node(&m_maglev_hash, descname, rsdesc);
     rs_entry_count[i] = 0;
   }
 
@@ -42,25 +42,25 @@ TEST(FactorialTest, Negative) {
 
   // </TechnicalDetails>
   struct MAGLEV_SERVICE_PARAMS *temp_srv = &m_maglev_hash.item[ m_maglev_hash.is_use_index ];
-  for(i = 0; i < temp_srv->m_hash_size; i++ ) {
-	  printf("index:%d, rs str:%s \n", i,temp_srv->m_entry[i] );
-
-	  if (0 == strcmp((char *)(temp_srv->m_entry[i]), "0")) {
+  for(i = 0; i < temp_srv->hash_bucket_size; i++ ) {
+	  if (0 == strcmp((char *)(temp_srv->hash_entry[i]), "0")) {
 		  rs_entry_count[0]++;
 	  }
-	  if (0 == strcmp((char *)(temp_srv->m_entry[i]), "1")) {
+	  if (0 == strcmp((char *)(temp_srv->hash_entry[i]), "1")) {
 		  rs_entry_count[1]++;
 	  }
-	  if (0 == strcmp((char *)(temp_srv->m_entry[i]), "2")) {
+	  if (0 == strcmp((char *)(temp_srv->hash_entry[i]), "2")) {
 		  rs_entry_count[2]++;
 	  }
   }
 
-  printf("hash size:%d\n", temp_srv->m_hash_size);
+  printf("hash size:%d\n", temp_srv->hash_bucket_size);
   for(i = 0; i < REAL_SERVER_NUMB; i++) {
-	  printf("rs:%s, count:%d \n", temp_srv->m_rs_info[i], rs_entry_count[i] );
+	  printf("node: %s, count: %d\n", (char *)temp_srv->node_info_entry[i], rs_entry_count[i]);
   }
-
-
 }
 
+int main(int argc,char **argv){
+    testing::InitGoogleTest(&argc,argv);
+    return RUN_ALL_TESTS();
+}
