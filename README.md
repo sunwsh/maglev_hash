@@ -45,13 +45,13 @@ for(int j = 0; j &lt; M ; j++ ) {
 > 2. 有单点故障时，流量变化情况（2节点故障），测试单调性。  
 > 3. 增加一个节点时，其他节点流量的变化情况，测试单调性。  
 
+ ![单调性测试](images/image_test.png)
+
 ### 单调性测试 
 > M = 2017, real server = 4 删除一个rs = 3后，前后entry（lookup table）槽对比， hash size = 2017  
 > delete:504, 由于单点故障，故障点的请求都被分流了，删除的节点有504个槽  
 > interupt:10, 其他槽中有10个漂移到其他rs上去了。  
 > 这样算下来有： （2017-10）/2017 = 99.5% 保持了单调性  
-
- ![单调性测试](images/image_test.png)
  
  
 # Maglev Hash与Consistent Hashing的对比
