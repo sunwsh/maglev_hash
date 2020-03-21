@@ -13,7 +13,9 @@
 - 构造permutation数组  
   根据不同的两个hash函数，我们生成两个数值（offset ，skip）  
   在这里我们使用的是murmur2算法和DJBHash算法，读者可以自己到网上找算法实现。  
-  ![maglev consistent hashing](images/image_permutation.png)
+  
+  ![maglev consistent hashing](images/image_permutation.png)  
+  
   M = 一个hash槽大小 ，这个槽设置成一个素数  
   N=节点个数   
    
@@ -27,10 +29,14 @@ for(int j = 0; j &lt; M ; j++ ) {
 }
 
 ```
+
 生成hash查找桶entry  
-![算法](images/image_algorithm.png)
+
+![算法](images/image_algorithm.png)  
+
 根据这个算法 ，数据源是 permutation , 生成 最后的 entry 数组 ，就是下图的表。  
-![论文上结果](images/image_result.png)
+
+![论文上结果](images/image_result.png)  
 
 ## maglev一致性hash测试
 
