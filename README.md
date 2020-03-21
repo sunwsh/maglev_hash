@@ -66,6 +66,6 @@ for(int j = 0; j &lt; M ; j++ ) {
 > maglev hash通过之前生成的偏好表（permutation list）决定变化时的单调性。  
 > 缺点是maglev hash有些时候会出现disruption ，比例是：0.5% ，这一点上不如consistent hash。  
 
-- 根据上面比较看：
-maglev hash在平衡性和查询性能上要优于consistent hash。  
-consistent hash在单调性上要优于maglev hash。  
+- 根据上面比较看：  
+> maglev hash在平衡性和查询性能上要优于consistent hash。  
+> consistent hash在单调性上要优于maglev hash。  
