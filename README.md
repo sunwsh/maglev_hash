@@ -27,9 +27,9 @@ for(int j = 0; j &lt; M ; j++ ) {
 }
 
 ```
-生成hash查找桶entry
+生成hash查找桶entry  
 ![算法](images/image_algorithm.png)
-根据这个算法 ，数据源是 permutation , 生成 最后的 entry 数组 ，就是下图的表。
+根据这个算法 ，数据源是 permutation , 生成 最后的 entry 数组 ，就是下图的表。  
 ![论文上结果](images/image_result.png)
 
 ## maglev一致性hash测试
