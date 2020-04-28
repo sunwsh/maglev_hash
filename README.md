@@ -24,7 +24,7 @@ unsigned int offset = DJBHash(p_rs_srv_name);
 offset = offset % M;
 unsigned int skip = ngx_murmur_hash2(p_rs_srv_name,strlen(p_rs_srv_name) );
 skip = skip % ( M -1 ) + 1;
-for(int j = 0; j &lt; M ; j++ ) {
+for(int j = 0; j < M ; j++ ) {
   *(p_rs_info->m_permute + j) = (offset + j * skip) % M
 }
 
